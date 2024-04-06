@@ -6,7 +6,7 @@ function Header() {
         <AppBar position="sticky" style={{ backgroundColor: "#424242" }}>
             <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-                    NoPixel ES - Thermite minigame
+                    NoPixel ES - Mazer minigame
                 </Typography>
             </Toolbar>
         </AppBar>
