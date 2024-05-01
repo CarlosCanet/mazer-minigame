@@ -57,7 +57,7 @@ function Mazer() {
     const handleButtonClick = (icon, rowIndex, colIndex, clicked) => {
         if (!gameOver) {
             const value = getGridForIcon(icon, rowIndex, colIndex);
-            if(clicked === 1){
+            if (clicked === 1) {
                 setNumSolved(numSolved + 1);
             }
             setNumOptions(value.nO);
@@ -132,7 +132,13 @@ function Mazer() {
                     {grid.map((row, rowIndex) => (
                         row.map((_, colIndex) =>
                             <Grid key={`${rowIndex}-${colIndex}`} xs={2}>
-                                <MazerButton reset={reset} onClicked={(icon, clicks) => handleButtonClick(icon, rowIndex, colIndex, clicks)} isClickable={grid[rowIndex][colIndex].isClickable} error={numOptions === 0} iconSet={iconSet} />
+                                <MazerButton
+                                    reset={reset}
+                                    onClicked={(icon, clicks) => handleButtonClick(icon, rowIndex, colIndex, clicks)}
+                                    isClickable={grid[rowIndex][colIndex].isClickable && !gameOver}
+                                    error={(numOptions === 0) || gameOver}
+                                    iconSet={iconSet}
+                                />
                             </Grid>
                         )
                     ))}
