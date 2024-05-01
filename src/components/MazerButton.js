@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import "./MazerButton.css";
 
-function MazerButton({ reset, onClicked, rowIndex, colIndex, isClickable, onHidden, error, iconSet }) {
+function MazerButton({ reset, onClicked, rowIndex, colIndex, isClickable, error, iconSet }) {
     const [icon, setIcon] = useState(newIcon());
     const [clicks, setClicks] = useState(0);
 
@@ -12,11 +12,8 @@ function MazerButton({ reset, onClicked, rowIndex, colIndex, isClickable, onHidd
                 setIcon(newIcon());
             }
             setClicks(clicks + 1);
-            if (clicks === 1) {
-                onHidden();
-            }
+            onClicked(icon, clicks);
         }
-        onClicked(icon, rowIndex, colIndex);
     };
 
     useEffect(() => {

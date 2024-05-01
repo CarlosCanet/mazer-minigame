@@ -14,7 +14,7 @@ function Mazer() {
     const [reset, setReset] = useState(false);
     const [numSolved, setNumSolved] = useState(0);
     const [numOptions, setNumOptions] = useState(numRows * numCols);
-    const [maxTime, setMaxTime] = useState(5);
+    const [maxTime, setMaxTime] = useState(45);
     const [timeLeft, setTimeLeft] = useState(maxTime * 1000 / updateTime);
     const [gameStart, setGameStart] = useState(false);
     const [gameOver, setGameOver] = useState(false);
@@ -54,11 +54,14 @@ function Mazer() {
         setTimeLeft(maxTime * 1000 / updateTime);
     };
 
-    const handleButtonClick = (icon, rowIndex, colIndex) => {
+    const handleButtonClick = (icon, rowIndex, colIndex, clicked) => {
         if (!gameOver) {
             const value = getGridForIcon(icon, rowIndex, colIndex);
+            if(clicked === 1){
+                setNumSolved(numSolved + 1);
+            }
             setNumOptions(value.nO);
-            console.log(value.nO + "," + numOptions);
+            // console.log(value.nO + "," + numOptions);
             setGrid(value.updatedGrid);
             if (numSolved === num2Win) {
                 setGameOver(true);
@@ -96,7 +99,7 @@ function Mazer() {
             clearTimeout(delayStart);
             setTimeLeft(maxTime * 1000 / updateTime);
         }
-        console.log(timeLeft * updateTime / 1000);
+        // console.log(timeLeft * updateTime / 1000);
         return () => clearTimeout(delayStart);
     }, [maxTime, reset, timeLeft]);
     const progress = ((timeLeft * updateTime / 1000) / (maxTime)) * 100;
@@ -129,7 +132,7 @@ function Mazer() {
                     {grid.map((row, rowIndex) => (
                         row.map((_, colIndex) =>
                             <Grid key={`${rowIndex}-${colIndex}`} xs={2}>
-                                <MazerButton reset={reset} onClicked={(icon) => handleButtonClick(icon, rowIndex, colIndex)} isClickable={grid[rowIndex][colIndex].isClickable} onHidden={() => { setNumSolved(numSolved + 1) }} error={numOptions === 0} iconSet={iconSet} />
+                                <MazerButton reset={reset} onClicked={(icon, clicks) => handleButtonClick(icon, rowIndex, colIndex, clicks)} isClickable={grid[rowIndex][colIndex].isClickable} error={numOptions === 0} iconSet={iconSet} />
                             </Grid>
                         )
                     ))}
