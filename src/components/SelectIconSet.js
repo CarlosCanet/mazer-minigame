@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, FormControl, InputLabel, MenuItem, OutlinedInput } from '@mui/material';
+import { Select, FormControl, InputLabel, MenuItem } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const darkTheme = createTheme({

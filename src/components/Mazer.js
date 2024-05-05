@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, Typography, Paper, Alert, Slider, Snackbar, Stack, Select, FormControl, InputLabel, MenuItem, OutlinedInput } from '@mui/material';
+import { Button, Box, Typography, Paper, Alert, Slider, Snackbar, Stack } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import MazerButton from './MazerButton';
 import MyLinearProgress from './MyLinearProgress';
@@ -8,7 +8,7 @@ const numRows = 6;
 const numCols = 6;
 const num2Win = 24;
 const updateTime = 100;
-const initialDelay = 3000;
+const initialDelay = 1000;
 
 function Mazer() {
     const [reset, setReset] = useState(false);
@@ -16,10 +16,11 @@ function Mazer() {
     const [numOptions, setNumOptions] = useState(numRows * numCols);
     const [maxTime, setMaxTime] = useState(45);
     const [timeLeft, setTimeLeft] = useState(maxTime * 1000 / updateTime);
-    const [gameStart, setGameStart] = useState(false);
+    const [game, setGame] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [openSB, setOpenSB] = useState(false);
     const [gameOverSB, setGameOverSB] = useState(false);
+    const [gameWinSB, setGameWinSB] = useState(false);
     const [intervalId, setIntervalId] = useState(null);
     const [iconSet, setIconSet] = React.useState('bananaTreeWolf');
 
@@ -28,7 +29,7 @@ function Mazer() {
         for (let i = 0; i < numRows; i++) {
             const row = [];
             for (let j = 0; j < numCols; j++) {
-                row.push({ isClickable: true, clicked: 0 });
+                row.push({ isClickable: true, hidden: false });
             }
             initGrid.push(row);
         }
@@ -37,35 +38,31 @@ function Mazer() {
     const [grid, setGrid] = useState(() => newGrid());
 
     const handleRestart = () => {
+        setReset(true);
         if (intervalId) {
             clearInterval(intervalId);
         }
-        setReset(true);
-        setGameOver(false);
-        setGameOverSB(false);
-        setOpenSB(false);
-        for (let i = 0; i < numRows; i++) {
-            for (let j = 0; j < numCols; j++) {
-                grid[i][j].isClickable = true;
-            }
-        }
+        setGrid(newGrid());
         setNumOptions(numRows * numCols);
         setNumSolved(0);
         setTimeLeft(maxTime * 1000 / updateTime);
+        setGame(false);
+        setGameOver(false);
+        setGameOverSB(false);
+        setGameWinSB(false);
+        setOpenSB(false);
     };
 
     const handleButtonClick = (icon, rowIndex, colIndex, clicked) => {
         if (!gameOver) {
-            const value = getGridForIcon(icon, rowIndex, colIndex);
+            const value = getGridForIcon(grid, icon, rowIndex, colIndex);
             if (clicked === 1) {
                 setNumSolved(numSolved + 1);
+                grid[rowIndex][colIndex].hidden = true;
             }
-            setNumOptions(value.nO);
-            // console.log(value.nO + "," + numOptions);
+            setNumOptions(value.nOptions);
+            console.log(value.nOptions + ", " + numOptions);
             setGrid(value.updatedGrid);
-            if (numSolved === num2Win) {
-                setGameOver(true);
-            }
         }
     };
 
@@ -75,33 +72,43 @@ function Mazer() {
     };
 
     useEffect(() => {
+        // console.log("Game: " + game + ", GameOver: " + gameOver + ", GameOverSB: " + gameOverSB + ", GameWinSB: " + gameWinSB + ", OpenSB: " + openSB + ", Reset: " + reset);
         const delayStart = setTimeout(() => {
             const countdownInterval = setInterval(() => {
                 setTimeLeft(prevTime => {
                     if (prevTime > 0) {
                         return prevTime - 1;
                     } else {
-                        setGameOver(true);
-                        setGameOverSB(true);
+                        setGame(false);
+                        if(!gameOver){
+                            setGameOver(true);
+                            setGameOverSB(true);
+                        }
                         clearInterval(countdownInterval);
-                        console.log("Timeout!")
+                        // console.log("Timeout!")
                         return 0;
                     }
                 });
             }, updateTime);
-            setGameStart(true);
-            setOpenSB(true);
+            if(!game && !gameOver){
+                setGame(true);
+                setOpenSB(true);
+            }
             setIntervalId(countdownInterval)
             return () => clearInterval(countdownInterval);
         }, initialDelay);
         if (reset === true) {
             setReset(false);
-            clearTimeout(delayStart);
-            setTimeLeft(maxTime * 1000 / updateTime);
         }
-        // console.log(timeLeft * updateTime / 1000);
+        if(numOptions === 0){
+            setTimeLeft(0);
+        }
+        if (numSolved === num2Win) {
+            clearInterval(intervalId);
+            setGameWinSB(true);
+        }
         return () => clearTimeout(delayStart);
-    }, [maxTime, reset, timeLeft]);
+    }, [game, gameOver, gameOverSB, gameWinSB, intervalId, maxTime, numOptions, numSolved, openSB, reset, timeLeft]);
     const progress = ((timeLeft * updateTime / 1000) / (maxTime)) * 100;
 
     return (
@@ -119,7 +126,7 @@ function Mazer() {
 
                     <Grid xs={6} xsOffset={1}>
                         <Stack spacing={2} direction="row" alignItems="center">
-                            <Slider aria-label='Time' value={maxTime} step={1} min={5} max={75} valueLabelDisplay='on' onChange={handleSliderChange} />
+                            <Slider aria-label='Time' value={maxTime} step={1} min={45} max={75} valueLabelDisplay='on' onChange={handleSliderChange} />
                             <Typography sx={{ color: "white", marginLeft: "10px" }}>{maxTime}s</Typography>
                         </Stack>
                     </Grid>
@@ -135,7 +142,7 @@ function Mazer() {
                                 <MazerButton
                                     reset={reset}
                                     onClicked={(icon, clicks) => handleButtonClick(icon, rowIndex, colIndex, clicks)}
-                                    isClickable={grid[rowIndex][colIndex].isClickable && !gameOver}
+                                    isClickable={grid[rowIndex][colIndex].isClickable && !gameOver && game}
                                     error={(numOptions === 0) || gameOver}
                                     iconSet={iconSet}
                                 />
@@ -156,75 +163,77 @@ function Mazer() {
             <Snackbar open={gameOverSB} autoHideDuration={initialDelay} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameOverSB(false)} >
                 <Alert severity="info" variant='filled' sx={{ backgroundColor: '#3f675f' }}>Game Over!</Alert>
             </Snackbar>
+            <Snackbar open={gameWinSB} autoHideDuration={initialDelay} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameWinSB(false)} >
+                <Alert severity="info" variant='filled' sx={{ backgroundColor: '#3f675f' }}>You win!</Alert>
+            </Snackbar>
         </div>
     );
 }
 
-function getGridFor8Close(rowIndex, colIndex, numOptions) {
-    const initGrid = [];
-    for (let i = 0; i < numRows; i++) {
-        const row = [];
-        for (let j = 0; j < numCols; j++) {
-            if (Math.abs(rowIndex - i) <= 1 && Math.abs(colIndex - j) <= 1 &&
-                (i !== rowIndex || j !== colIndex)) {
-                row.push({ isClickable: true });
-                numOptions++;
-            } else {
-                row.push({ isClickable: false });
-            }
-        }
-        initGrid.push(row);
-    }
-    return { updatedGrid: initGrid, nO: numOptions };
-}
-
-function getGridFor8Far(rowIndex, colIndex, numOptions) {
-    const initGrid = [];
-    for (let i = 0; i < numRows; i++) {
-        const row = [];
-        for (let j = 0; j < numCols; j++) {
-            if ((i === rowIndex || i === (rowIndex - 2) || i === (rowIndex + 2)) &&
-                (j === colIndex || j === (colIndex - 2) || j === (colIndex + 2)) &&
-                (i !== rowIndex || j !== colIndex)) {
-                row.push({ isClickable: true });
-                numOptions++;
-            } else {
-                row.push({ isClickable: false });
-            }
-        }
-        initGrid.push(row);
-    }
-    return { updatedGrid: initGrid, nO: numOptions };
-}
-
-function getGridFor3Far(rowIndex, colIndex, numOptions) {
-    const initGrid = [];
-    for (let i = 0; i < numRows; i++) {
-        const row = [];
-        for (let j = 0; j < numCols; j++) {
-            if ((rowIndex === i || rowIndex === (i - 3) || rowIndex === (i + 3)) &&
-                (colIndex === j || colIndex === (j - 3) || colIndex === (j + 3)) &&
-                (i !== rowIndex || j !== colIndex)) {
-                row.push({ isClickable: true });
-                numOptions++;
-            } else {
-                row.push({ isClickable: false });
-            }
-        }
-        initGrid.push(row);
-    }
-    return { updatedGrid: initGrid, nO: numOptions };
-}
-
-function getGridForIcon(icon, rowIndex, colIndex) {
+function getGridFor8Close(grid, rowIndex, colIndex) {
     let numOptions = 0;
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+            if (!grid[i][j].hidden) {
+                if (Math.abs(rowIndex - i) <= 1 && Math.abs(colIndex - j) <= 1 &&
+                    (i !== rowIndex || j !== colIndex)) {
+                    grid[i][j].isClickable = true;
+                    numOptions++;
+                } else {
+                    grid[i][j].isClickable = false;
+                }
+            }
+        }
+    }
+    return { updatedGrid: grid, nOptions: numOptions };
+}
+
+function getGridFor8Far(grid, rowIndex, colIndex) {
+    let numOptions = 0;
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+            if (!grid[i][j].hidden) {
+                if ((i === rowIndex || i === (rowIndex - 2) || i === (rowIndex + 2)) &&
+                    (j === colIndex || j === (colIndex - 2) || j === (colIndex + 2)) &&
+                    (i !== rowIndex || j !== colIndex)) {
+                    grid[i][j].isClickable = true;
+                    numOptions++;
+                } else {
+                    grid[i][j].isClickable = false;
+                }
+            }
+        }
+    }
+    return { updatedGrid: grid, nOptions: numOptions };
+}
+
+function getGridFor3Far(grid, rowIndex, colIndex) {
+    let numOptions = 0;
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+            if (!grid[i][j].hidden) {
+                if ((rowIndex === i || rowIndex === (i - 3) || rowIndex === (i + 3)) &&
+                    (colIndex === j || colIndex === (j - 3) || colIndex === (j + 3)) &&
+                    (i !== rowIndex || j !== colIndex)) {
+                    grid[i][j].isClickable = true;
+                    numOptions++;
+                } else {
+                    grid[i][j].isClickable = false;
+                }
+            }
+        }
+    }
+    return { updatedGrid: grid, nOptions: numOptions };
+}
+
+function getGridForIcon(grid, iconStep, rowIndex, colIndex) {
     // console.log(icon + ", " + rowIndex + "," + colIndex + "," + numOptions);
-    if (icon === '8close') {
-        return getGridFor8Close(rowIndex, colIndex, numOptions);
-    } else if (icon === '8far') {
-        return getGridFor8Far(rowIndex, colIndex, numOptions);
-    } else if (icon === '3far') {
-        return getGridFor3Far(rowIndex, colIndex, numOptions);
+    if (iconStep === '8close') {
+        return getGridFor8Close(grid, rowIndex, colIndex);
+    } else if (iconStep === '8far') {
+        return getGridFor8Far(grid, rowIndex, colIndex);
+    } else if (iconStep === '3far') {
+        return getGridFor3Far(grid, rowIndex, colIndex);
     }
 }
 
@@ -232,8 +241,5 @@ export default Mazer;
 
 
 //TODO:
-//Si no hay opciones clickables => activar error
-//Si has llegado a 24/24 => Has ganado
-//Añadir temporizador => Has perdido => CASI
-//Lógica de Game Over
-//Bug Snackbar se abre al acabar el temporizador
+//Best time
+//Best strike

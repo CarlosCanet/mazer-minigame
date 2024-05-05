@@ -3,22 +3,22 @@ import { Button } from '@mui/material';
 import "./MazerButton.css";
 
 function MazerButton({ reset, onClicked, isClickable, error, iconSet }) {
-    const [icon, setIcon] = useState(newIcon());
+    const [iconStep, setIconStep] = useState(newIconStep());
     const [clicks, setClicks] = useState(0);
 
     const handleClick = () => {
         if (isClickable && !error) {
             if (clicks === 0) {
-                setIcon(newIcon());
+                setIconStep(newIconStep());
             }
             setClicks(clicks + 1);
-            onClicked(icon, clicks);
+            onClicked(iconStep, clicks);
         }
     };
 
     useEffect(() => {
         if (reset) {
-            setIcon(newIcon());
+            setIconStep(newIconStep());
             setClicks(0);
         }
     }, [reset]);
@@ -37,16 +37,16 @@ function MazerButton({ reset, onClicked, isClickable, error, iconSet }) {
             disabled={!isClickable}
             onClick={handleClick}
         >
-            {(iconSet === 'mouseBirdFrog')  && (icon === '8far' ? <BirdIcon />   : (icon === '8close' ? <MouseIcon />  : <FrogIcon />))}
-            {(iconSet === 'pawBearMonkey')  && (icon === '8far' ? <MonkeyIcon /> : (icon === '8close' ? <PawIcon />    : <BearIcon />))}
-            {(iconSet === 'bananaTreeWolf') && (icon === '8far' ? <TreeIcon />   : (icon === '8close' ? <BananaIcon /> : <WolfIcon />))}
+            {(iconSet === 'mouseBirdFrog')  && (iconStep === '8far' ? <BirdIcon />   : (iconStep === '8close' ? <MouseIcon />  : <FrogIcon />))}
+            {(iconSet === 'pawBearMonkey')  && (iconStep === '8far' ? <MonkeyIcon /> : (iconStep === '8close' ? <PawIcon />    : <BearIcon />))}
+            {(iconSet === 'bananaTreeWolf') && (iconStep === '8far' ? <TreeIcon />   : (iconStep === '8close' ? <BananaIcon /> : <WolfIcon />))}
         </Button>
     );
 }
 
 const widthIcon = "2.5em", heightIcon = "2.5em";
 
-function newIcon() {
+function newIconStep() {
     const randomNumber = Math.floor(Math.random() * 3);
 
     // Determine the icon based on the random number
