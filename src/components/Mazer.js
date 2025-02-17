@@ -4,31 +4,31 @@ import Grid from '@mui/material/Unstable_Grid2';
 import MazerButton from './MazerButton';
 import MyLinearProgress from './MyLinearProgress';
 import SelectIconSet from './SelectIconSet';
-const numRows = 6;
-const numCols = 6;
-const num2Win = 24;
-const updateTime = 100;
-const initialDelay = 1000;
+const NUM_ROWS = 6;
+const NUM_COLS = 6;
+const NUM2WIN = 24;
+const UPDATE_TIME = 100;
+const INITIAL_DELAY = 1000;
 
 function Mazer() {
     const [reset, setReset] = useState(false);
     const [numSolved, setNumSolved] = useState(0);
-    const [numOptions, setNumOptions] = useState(numRows * numCols);
+    const [numOptions, setNumOptions] = useState(NUM_ROWS * NUM_COLS);
     const [maxTime, setMaxTime] = useState(45);
-    const [timeLeft, setTimeLeft] = useState(maxTime * 1000 / updateTime);
+    const [timeLeft, setTimeLeft] = useState(maxTime * 1000 / UPDATE_TIME);
     const [game, setGame] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [openSB, setOpenSB] = useState(false);
     const [gameOverSB, setGameOverSB] = useState(false);
     const [gameWinSB, setGameWinSB] = useState(false);
     const [intervalId, setIntervalId] = useState(null);
-    const [iconSet, setIconSet] = React.useState('bananaTreeWolf');
+    const [iconSet, setIconSet] = useState('bananaTreeWolf');
 
     const newGrid = () => {
         const initGrid = [];
-        for (let i = 0; i < numRows; i++) {
+        for (let i = 0; i < NUM_ROWS; i++) {
             const row = [];
-            for (let j = 0; j < numCols; j++) {
+            for (let j = 0; j < NUM_COLS; j++) {
                 row.push({ isClickable: true, hidden: false });
             }
             initGrid.push(row);
@@ -43,9 +43,9 @@ function Mazer() {
             clearInterval(intervalId);
         }
         setGrid(newGrid());
-        setNumOptions(numRows * numCols);
+        setNumOptions(NUM_ROWS * NUM_COLS);
         setNumSolved(0);
-        setTimeLeft(maxTime * 1000 / updateTime);
+        setTimeLeft(maxTime * 1000 / UPDATE_TIME);
         setGame(false);
         setGameOver(false);
         setGameOverSB(false);
@@ -89,27 +89,27 @@ function Mazer() {
                         return 0;
                     }
                 });
-            }, updateTime);
+            }, UPDATE_TIME);
             if(!game && !gameOver){
                 setGame(true);
                 setOpenSB(true);
             }
             setIntervalId(countdownInterval)
             return () => clearInterval(countdownInterval);
-        }, initialDelay);
+        }, INITIAL_DELAY);
         if (reset === true) {
             setReset(false);
         }
         if(numOptions === 0){
             setTimeLeft(0);
         }
-        if (numSolved === num2Win) {
+        if (numSolved === NUM2WIN) {
             clearInterval(intervalId);
             setGameWinSB(true);
         }
         return () => clearTimeout(delayStart);
     }, [game, gameOver, gameOverSB, gameWinSB, intervalId, maxTime, numOptions, numSolved, openSB, reset, timeLeft]);
-    const progress = ((timeLeft * updateTime / 1000) / (maxTime)) * 100;
+    const progress = ((timeLeft * UPDATE_TIME / 1000) / (maxTime)) * 100;
 
     return (
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: "black", minHeight: "100vh" }}>
@@ -120,7 +120,7 @@ function Mazer() {
                         <Paper elevation={3} square={false} sx={{ textAlign: 'center', backgroundColor: 'gray', color: 'white', padding: '1rem' }}>
                             <Typography variant='h2'>Minigame</Typography>
                             <Typography>This is a minigame where you can test your skills.</Typography>
-                            <Typography>Time: {((timeLeft * updateTime / 1000)).toFixed(1)} </Typography>
+                            <Typography>Time: {((timeLeft * UPDATE_TIME / 1000)).toFixed(1)} </Typography>
                         </Paper>
                     </Grid>
 
@@ -134,7 +134,7 @@ function Mazer() {
                         <SelectIconSet iconSet={iconSet} onSelect={(s) => setIconSet(s)} />
                     </Grid>
                     <Grid xs={12}>
-                        <Typography variant="h6" color={"white"} align='center'>{numSolved}/{num2Win}</Typography>
+                        <Typography variant="h6" color={"white"} align='center'>{numSolved}/{NUM2WIN}</Typography>
                     </Grid>
                     {grid.map((row, rowIndex) => (
                         row.map((_, colIndex) =>
@@ -157,13 +157,13 @@ function Mazer() {
                     </Grid>
                 </Grid>
             </Box>
-            <Snackbar open={openSB} autoHideDuration={initialDelay} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setOpenSB(false)} >
+            <Snackbar open={openSB} autoHideDuration={INITIAL_DELAY} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setOpenSB(false)} >
                 <Alert severity="info" variant='filled' sx={{ backgroundColor: '#3f675f' }}>The game starts NOW!</Alert>
             </Snackbar>
-            <Snackbar open={gameOverSB} autoHideDuration={initialDelay} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameOverSB(false)} >
+            <Snackbar open={gameOverSB} autoHideDuration={INITIAL_DELAY} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameOverSB(false)} >
                 <Alert severity="info" variant='filled' sx={{ backgroundColor: '#3f675f' }}>Game Over!</Alert>
             </Snackbar>
-            <Snackbar open={gameWinSB} autoHideDuration={initialDelay} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameWinSB(false)} >
+            <Snackbar open={gameWinSB} autoHideDuration={INITIAL_DELAY} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setGameWinSB(false)} >
                 <Alert severity="info" variant='filled' sx={{ backgroundColor: '#3f675f' }}>You win!</Alert>
             </Snackbar>
         </div>
@@ -172,8 +172,8 @@ function Mazer() {
 
 function getGridFor8Close(grid, rowIndex, colIndex) {
     let numOptions = 0;
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
+    for (let i = 0; i < NUM_ROWS; i++) {
+        for (let j = 0; j < NUM_COLS; j++) {
             if (!grid[i][j].hidden) {
                 if (Math.abs(rowIndex - i) <= 1 && Math.abs(colIndex - j) <= 1 &&
                     (i !== rowIndex || j !== colIndex)) {
@@ -190,8 +190,8 @@ function getGridFor8Close(grid, rowIndex, colIndex) {
 
 function getGridFor8Far(grid, rowIndex, colIndex) {
     let numOptions = 0;
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
+    for (let i = 0; i < NUM_ROWS; i++) {
+        for (let j = 0; j < NUM_COLS; j++) {
             if (!grid[i][j].hidden) {
                 if ((i === rowIndex || i === (rowIndex - 2) || i === (rowIndex + 2)) &&
                     (j === colIndex || j === (colIndex - 2) || j === (colIndex + 2)) &&
@@ -209,8 +209,8 @@ function getGridFor8Far(grid, rowIndex, colIndex) {
 
 function getGridFor3Far(grid, rowIndex, colIndex) {
     let numOptions = 0;
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
+    for (let i = 0; i < NUM_ROWS; i++) {
+        for (let j = 0; j < NUM_COLS; j++) {
             if (!grid[i][j].hidden) {
                 if ((rowIndex === i || rowIndex === (i - 3) || rowIndex === (i + 3)) &&
                     (colIndex === j || colIndex === (j - 3) || colIndex === (j + 3)) &&

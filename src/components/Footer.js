@@ -6,7 +6,7 @@ function Footer() {
         <AppBar position="sticky" style={{ top: 'auto', bottom: 0, backgroundColor: "#424242"}}>
             <Toolbar>
                 <Typography variant="h8" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-                    Coded by CarlosC
+                    Developed by CarlosCanet
                 </Typography>
             </Toolbar>
         </AppBar>
